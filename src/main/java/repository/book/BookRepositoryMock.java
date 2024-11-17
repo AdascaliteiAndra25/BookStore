@@ -1,12 +1,13 @@
-package repository;
+package repository.book;
 
 import model.Book;
+import repository.book.BookRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BookRepositoryMock implements BookRepository{
+public class BookRepositoryMock implements BookRepository {
     private final List<Book> books;
 
     public BookRepositoryMock(){

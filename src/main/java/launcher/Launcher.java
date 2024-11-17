@@ -1,7 +1,10 @@
 package launcher;
 
+import database.JDBConnectionWrapper;
 import javafx.application.Application;
 import javafx.stage.Stage;
+
+import java.sql.Connection;
 
 public class Launcher extends Application {
 
@@ -13,6 +16,7 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        ComponentFactory.getInstance(false, primaryStage);
+       ComponentFactory.getInstance(false, primaryStage);
+       // final Connection connection =new JDBConnectionWrapper()
     }
 }
