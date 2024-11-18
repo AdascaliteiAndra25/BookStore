@@ -26,6 +26,15 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     @Override
     public Notification<Boolean> register(String username, String password) {
 
+        Notification<Boolean> userRegisterNotification = new Notification<>();
+
+        if(userRepository.existsByUsername(username)){
+            userRegisterNotification.addError("This username is already registered. Please try with another username.");
+            userRegisterNotification.setResult(Boolean.FALSE);
+            return userRegisterNotification;
+
+        }
+
         Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
 
         User user = new UserBuilder()
@@ -37,7 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         UserValidator userValidator = new UserValidator(user);
 
         boolean userValid=userValidator.validate();
-        Notification<Boolean> userRegisterNotification = new Notification<>();
+
 
         if(!userValid){
             userValidator.getErrors().forEach(userRegisterNotification::addError);

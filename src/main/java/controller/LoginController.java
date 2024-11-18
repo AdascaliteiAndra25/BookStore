@@ -16,13 +16,12 @@ public class LoginController {
 
     private final LoginView loginView;
     private final AuthenticationService authenticationService;
-    private final UserValidator userValidator;
 
 
-    public LoginController(LoginView loginView, AuthenticationService authenticationService, UserValidator userValidator) {
+    public LoginController(LoginView loginView, AuthenticationService authenticationService) {
         this.loginView = loginView;
         this.authenticationService = authenticationService;
-        this.userValidator=userValidator;
+
 
         this.loginView.addLoginButtonListener(new LoginButtonListener());
         this.loginView.addRegisterButtonListener(new RegisterButtonListener());

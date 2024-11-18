@@ -1,4 +1,5 @@
 package repository.user;
+import model.Book;
 import model.User;
 import model.builder.UserBuilder;
 import model.validator.Notification;
@@ -9,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import static database.Constants.Tables.USER;
@@ -28,7 +30,27 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return null;
+        String fetchUserSql = "SELECT * FROM `" + USER +"`";
+
+        List<User> users = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(fetchUserSql);
+
+            while(resultSet.next()){
+                User user = new UserBuilder()
+                        .setUsername(resultSet.getString("username"))
+                        .setPassword(resultSet.getString("password"))
+                        .setRoles(rightsRolesRepository.findRolesForUser(resultSet.getLong("id")))
+                        .build();
+
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 
     // SQL Injection Attacks should not work after fixing functions
@@ -41,11 +63,15 @@ public class UserRepositoryMySQL implements UserRepository {
 
         Notification<User> findByUsernameAndPasswordNotification = new Notification<>();
          try {
-            Statement statement = connection.createStatement();
+
 
             String fetchUserSql =
-                    "Select * from `" + USER + "` where `username`=\'" + username + "\' and `password`=\'" + password + "\'";
-            ResultSet userResultSet = statement.executeQuery(fetchUserSql);
+                    "Select * from `" + USER + "` where `username` = ? and `password` = ?";
+            PreparedStatement preparedStatement=connection.prepareStatement(fetchUserSql);
+            preparedStatement.setString(1,username);
+            preparedStatement.setString(2,password);
+
+            ResultSet userResultSet = preparedStatement.executeQuery();
             if(userResultSet.next()){
                 User user = new UserBuilder()
                         .setUsername(userResultSet.getString("username"))
@@ -105,11 +131,11 @@ public class UserRepositoryMySQL implements UserRepository {
     @Override
     public boolean existsByUsername(String email) {
         try {
-            Statement statement = connection.createStatement();
-
             String fetchUserSql =
-                    "Select * from `" + USER + "` where `username`=\'" + email + "\'";
-            ResultSet userResultSet = statement.executeQuery(fetchUserSql);
+                    "Select * from `" + USER + "` where `username`= ?" ;
+            PreparedStatement preparedStatement=connection.prepareStatement(fetchUserSql);
+            preparedStatement.setString(1,email);
+            ResultSet userResultSet = preparedStatement.executeQuery();
             return userResultSet.next();
 
         } catch (SQLException e) {

@@ -3,6 +3,7 @@ import controller.LoginController;
 import database.DatabaseConnectionFactory;
 import javafx.stage.Stage;
 import model.validator.UserValidator;
+import repository.book.BookRepository;
 import repository.book.BookRepositoryMySQL;
 import repository.security.RightsRolesRepository;
 import repository.security.RightsRolesRepositoryMySQL;
@@ -21,12 +22,12 @@ public class LoginComponentFactory {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final RightsRolesRepository rightsRolesRepository;
-    private final BookRepositoryMySQL bookRepository;
+    private final BookRepository bookRepository;
     private static LoginComponentFactory instance;
     private static Boolean componentsForTests;
     private static Stage stage;
 
-    public static LoginComponentFactory getInstance(Boolean aComponentsForTests, Stage aStage) {
+    public synchronized static LoginComponentFactory getInstance(Boolean aComponentsForTests, Stage aStage) {
         if (instance == null) {
             componentsForTests = aComponentsForTests;
             stage = aStage;
@@ -42,9 +43,10 @@ public class LoginComponentFactory {
         this.userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
         this.authenticationService = new AuthenticationServiceImpl(userRepository, rightsRolesRepository);
         this.loginView = new LoginView(stage);
-        this.loginController = new LoginController(loginView, authenticationService, new UserValidator(userRepository));
+        this.loginController = new LoginController(loginView, authenticationService);
         this.bookRepository = new BookRepositoryMySQL(connection);
     }
+
 
     public static Stage getStage(){
         return stage;
@@ -70,7 +72,7 @@ public class LoginComponentFactory {
         return loginView;
     }
 
-    public BookRepositoryMySQL getBookRepository(){
+    public BookRepository getBookRepository(){
         return bookRepository;
     }
 

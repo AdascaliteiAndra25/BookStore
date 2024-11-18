@@ -16,7 +16,6 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-       ComponentFactory.getInstance(false, primaryStage);
-       // final Connection connection =new JDBConnectionWrapper()
-    }
+       LoginComponentFactory loginComponentFactory=LoginComponentFactory.getInstance(false, primaryStage);
+       }
 }

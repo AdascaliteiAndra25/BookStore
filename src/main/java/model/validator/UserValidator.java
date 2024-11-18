@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class UserValidator {
     private static final String EMAIL_VALIDATION_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+
     public static final int MIN_PASSWORD_LENGTH = 8;
     private final List<String> errors;
     private final User user;
@@ -28,7 +29,7 @@ public class UserValidator {
     }
 
     public void validateUsername(String username){
-        if (Pattern.compile(EMAIL_VALIDATION_REGEX).matcher(username).matches()){
+        if (!Pattern.compile(EMAIL_VALIDATION_REGEX).matcher(username).matches()){
             errors.add("Email is not valid");
         }
     }

@@ -54,9 +54,12 @@ public class RightsRolesRepositoryMySQL implements  RightsRolesRepository{
     public Role findRoleByTitle(String role) {
         Statement statement;
         try {
-            statement = connection.createStatement();
-            String fetchRoleSql = "Select * from " + ROLE + " where `role`=\'" + role + "\'";
-            ResultSet roleResultSet = statement.executeQuery(fetchRoleSql);
+            //statement = connection.createStatement();
+            String fetchRoleSql = "Select * from " + ROLE + " where `role`= ?";
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(fetchRoleSql);
+            preparedStatement.setString(1,role);
+            ResultSet roleResultSet = preparedStatement.executeQuery();
             roleResultSet.next();
             Long roleId = roleResultSet.getLong("id");
             String roleTitle = roleResultSet.getString("role");
@@ -72,9 +75,12 @@ public class RightsRolesRepositoryMySQL implements  RightsRolesRepository{
     public Role findRoleById(Long roleId) {
         Statement statement;
         try {
-            statement = connection.createStatement();
-            String fetchRoleSql = "Select * from " + ROLE + " where `id`=\'" + roleId + "\'";
-            ResultSet roleResultSet = statement.executeQuery(fetchRoleSql);
+
+            String fetchRoleSql = "Select * from " + ROLE + " where `id`=?";
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement(fetchRoleSql);
+            preparedStatement.setLong(1, roleId);
+            ResultSet roleResultSet = preparedStatement.executeQuery();
             roleResultSet.next();
             String roleTitle = roleResultSet.getString("role");
             return new Role(roleId, roleTitle, null);
@@ -89,9 +95,11 @@ public class RightsRolesRepositoryMySQL implements  RightsRolesRepository{
     public Right findRightByTitle(String right) {
         Statement statement;
         try {
-            statement = connection.createStatement();
-            String fetchRoleSql = "Select * from `" + RIGHT + "` where `right`=\'" + right + "\'";
-            ResultSet rightResultSet = statement.executeQuery(fetchRoleSql);
+
+            String fetchRoleSql = "Select * from `" + RIGHT + "` where `right`=?";
+            PreparedStatement preparedStatement=connection.prepareStatement(fetchRoleSql);
+            preparedStatement.setString(1,right);
+            ResultSet rightResultSet = preparedStatement.executeQuery();
             rightResultSet.next();
             Long rightId = rightResultSet.getLong("id");
             String rightTitle = rightResultSet.getString("right");
@@ -121,9 +129,11 @@ public class RightsRolesRepositoryMySQL implements  RightsRolesRepository{
     public List<Role> findRolesForUser(Long userId) {
         try {
             List<Role> roles = new ArrayList<>();
-            Statement statement = connection.createStatement();
-            String fetchRoleSql = "Select * from " + USER_ROLE + " where `user_id`=\'" + userId + "\'";
-            ResultSet userRoleResultSet = statement.executeQuery(fetchRoleSql);
+
+            String fetchRoleSql = "Select * from " + USER_ROLE + " where `user_id`=?";
+            PreparedStatement preparedStatement=connection.prepareStatement(fetchRoleSql);
+            preparedStatement.setLong(1,userId);
+            ResultSet userRoleResultSet = preparedStatement.executeQuery();
             while (userRoleResultSet.next()) {
                 long roleId = userRoleResultSet.getLong("role_id");
                 roles.add(findRoleById(roleId));
