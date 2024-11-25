@@ -9,14 +9,21 @@ import java.util.Optional;
 
 public class BookRepositoryMock implements BookRepository {
     private final List<Book> books;
+    private final List<Book> soldBooks;
 
     public BookRepositoryMock(){
         books=new ArrayList<>();
+        soldBooks=new ArrayList<>();
     }
 
     @Override
     public List<Book> findAll() {
         return books;
+    }
+
+    @Override
+    public List<Book> findSoldBooks() {
+        return soldBooks;
     }
 
     @Override
@@ -41,4 +48,16 @@ public class BookRepositoryMock implements BookRepository {
         books.clear();
 
     }
+
+    @Override
+    public Optional<Book> findByTitleAndAuthor(String title, String author) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean sellBook(Book book) {
+        return false;
+    }
+
+
 }

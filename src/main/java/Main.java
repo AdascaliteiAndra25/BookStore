@@ -37,21 +37,21 @@ public class Main {
         bookRepository.removeAll();
         System.out.println(bookRepository.findAll());*/
 
-       Connection connection= DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
+      DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
 
-       BookRepository bookRepository= new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>());
-
-        BookService bookService=new BookServiceImpl(bookRepository);
-
-        RightsRolesRepository rightsRolesRepository=new RightsRolesRepositoryMySQL(connection);
-        UserRepository userRepository=new UserRepositoryMySQL(connection, rightsRolesRepository);
-        AuthenticationService authenticationService=new AuthenticationServiceImpl(userRepository,rightsRolesRepository);
-        if(userRepository.existsByUsername("Andra")){
-            System.out.println("Username already present into the user table");
-        } else {
-            authenticationService.register("Andra", "parola123!");
-        }
-       System.out.println(authenticationService.login("Andra", "parola123!"));
+//       BookRepository bookRepository= new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>());
+//
+//        BookService bookService=new BookServiceImpl(bookRepository);
+//
+//        RightsRolesRepository rightsRolesRepository=new RightsRolesRepositoryMySQL(connection);
+//        UserRepository userRepository=new UserRepositoryMySQL(connection, rightsRolesRepository);
+//        AuthenticationService authenticationService=new AuthenticationServiceImpl(userRepository,rightsRolesRepository);
+//        if(userRepository.existsByUsername("Andra")){
+//            System.out.println("Username already present into the user table");
+//        } else {
+//            authenticationService.register("Andra", "parola123!");
+//        }
+//       System.out.println(authenticationService.login("Andra", "parola123!"));
 
         // System.out.println(bookRepository.findAll());
        /* BookService bookService=new BookServiceImpl(bookRepository);

@@ -19,7 +19,7 @@ public class Bootstrap {
     private static RightsRolesRepository rightsRolesRepository;
 
     public static void main(String[] args) throws SQLException {
-        dropAll();
+        // dropAll(); //daca avem deja date comentam
 
         bootstrapTables();
 
@@ -41,7 +41,9 @@ public class Bootstrap {
                     "TRUNCATE `user_role`;",
                     "DROP TABLE `user_role`;",
                     "TRUNCATE `role`;",
-                    "DROP TABLE  `book`, `role`, `user`;"
+                    "DROP TABLE  `book`, `role`, `user`;",
+                    "TRUNCATE `sold_books`;",
+                    "DROP TABLE  `sold_books`;"
             };
 
             Arrays.stream(dropStatements).forEach(dropStatement -> {

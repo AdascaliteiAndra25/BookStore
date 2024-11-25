@@ -8,10 +8,12 @@ import java.util.Optional;
 public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
 
     private Cache<Book> cache;
+   // private Cache<Book> soldBooksCache;
 
     public BookRepositoryCacheDecorator(BookRepository bookRepository, Cache<Book> cache){
         super(bookRepository);
         this.cache=cache;
+        //this.soldBooksCache=soldBooksCache;
 
     }
     @Override
@@ -25,6 +27,18 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
         cache.save(books); //incarc cache
 
         return books;
+    }
+
+    @Override
+    public List<Book> findSoldBooks() {
+//        if (soldBooksCache.hasResult()) {
+//            return soldBooksCache.load();
+//        }
+
+        List<Book> soldBooks = decoratedbookRepository.findSoldBooks();
+        //soldBooksCache.save(soldBooks);
+
+        return soldBooks;
     }
 
     @Override
@@ -55,4 +69,18 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
         decoratedbookRepository.removeAll();
 
     }
+
+    @Override
+    public Optional<Book> findByTitleAndAuthor(String title, String author) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean sellBook(Book book) {
+        cache.invalidateCache();
+        //soldBooksCache.invalidateCache();
+        return decoratedbookRepository.sellBook(book);
+    }
+
+
 }

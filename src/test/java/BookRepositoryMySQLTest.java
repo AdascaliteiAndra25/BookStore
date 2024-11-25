@@ -23,7 +23,7 @@ public class BookRepositoryMySQLTest {
     public static void setup() throws SQLException {
         Connection connection= DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
         bookRepository=new BookRepositoryMySQL(connection);
-       // bookRepository.removeAll();
+        bookRepository.removeAll();
 
     }
 
@@ -41,12 +41,12 @@ public class BookRepositoryMySQLTest {
 
     @Test
     public void save(){
-        assertTrue(bookRepository.save(new BookBuilder().setTitle("Ion").setAuthor("Liviu Rebreanu").setPublishedDate(LocalDate.of(1980,10,2)).build()));
+        assertTrue(bookRepository.save(new BookBuilder().setTitle("Ion").setAuthor("Liviu Rebreanu").setPublishedDate(LocalDate.of(1980,10,2)).setStock(1).setPrice(20).build()));
     }
 
     @Test
     public void delete(){
-        Book bookMoaraCuNoroc= new BookBuilder().setAuthor("Ioan Slavici").setTitle("Moara cu noroc").setPublishedDate(LocalDate.of(1950,2,10)).build();
+        Book bookMoaraCuNoroc= new BookBuilder().setAuthor("Ioan Slavici").setTitle("Moara cu noroc").setPublishedDate(LocalDate.of(1950,2,10)).setStock(1).setPrice(20).build();
         bookRepository.save(bookMoaraCuNoroc);
         assertTrue(bookRepository.delete(bookMoaraCuNoroc));
     }
