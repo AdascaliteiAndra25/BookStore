@@ -1,6 +1,7 @@
 package repository.book;
 
 import model.Book;
+import model.Order;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,12 +9,12 @@ import java.util.Optional;
 public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
 
     private Cache<Book> cache;
-   // private Cache<Book> soldBooksCache;
+    private Cache<Order> soldBooksCache;
 
-    public BookRepositoryCacheDecorator(BookRepository bookRepository, Cache<Book> cache){
+    public BookRepositoryCacheDecorator(BookRepository bookRepository, Cache<Book> cache, Cache<Order> soldBooksCache){
         super(bookRepository);
         this.cache=cache;
-        //this.soldBooksCache=soldBooksCache;
+        this.soldBooksCache=soldBooksCache;
 
     }
     @Override
@@ -31,14 +32,33 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
 
     @Override
     public List<Book> findSoldBooks() {
-//        if (soldBooksCache.hasResult()) {
-//            return soldBooksCache.load();
-//        }
 
         List<Book> soldBooks = decoratedbookRepository.findSoldBooks();
-        //soldBooksCache.save(soldBooks);
 
         return soldBooks;
+    }
+
+    @Override
+    public List<Order> findAllOrders() {
+        if (soldBooksCache.hasResult()) {
+            return soldBooksCache.load();
+        }
+        List<Order> orders = decoratedbookRepository.findAllOrders();
+        soldBooksCache.save(orders);
+
+        return orders;
+    }
+
+    @Override
+    public List<Order> findOrdersForLastMonth() {
+        if (soldBooksCache.hasResult()) {
+            return soldBooksCache.load();
+        }
+
+        List<Order> orders = decoratedbookRepository.findOrdersForLastMonth();
+        soldBooksCache.save(orders);
+
+        return orders;
     }
 
     @Override
@@ -70,16 +90,20 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator {
 
     }
 
+
+
+
     @Override
-    public Optional<Book> findByTitleAndAuthor(String title, String author) {
-        return Optional.empty();
+    public boolean sellBook(Book book, Long id) {
+        cache.invalidateCache();
+        soldBooksCache.invalidateCache();
+        return decoratedbookRepository.sellBook(book,id);
     }
 
     @Override
-    public boolean sellBook(Book book) {
+    public boolean update(Book book) {
         cache.invalidateCache();
-        //soldBooksCache.invalidateCache();
-        return decoratedbookRepository.sellBook(book);
+        return decoratedbookRepository.update(book);
     }
 
 

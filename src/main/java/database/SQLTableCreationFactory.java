@@ -21,7 +21,7 @@ public class SQLTableCreationFactory {
 
             case USER:
                 return "CREATE TABLE IF NOT EXISTS user (" +
-                        "  id INT NOT NULL AUTO_INCREMENT," +
+                        "  id bigint NOT NULL AUTO_INCREMENT," +
                         "  username VARCHAR(200) NOT NULL," +
                         "  password VARCHAR(64) NOT NULL," +
                         "  PRIMARY KEY (id)," +
@@ -67,7 +67,7 @@ public class SQLTableCreationFactory {
             case USER_ROLE:
                 return "\tCREATE TABLE IF NOT EXISTS user_role (" +
                         "  id INT NOT NULL AUTO_INCREMENT," +
-                        "  user_id INT NOT NULL," +
+                        "  user_id bigint NOT NULL," +
                         "  role_id INT NOT NULL," +
                         "  PRIMARY KEY (id)," +
                         "  UNIQUE INDEX id_UNIQUE (id ASC)," +
@@ -85,14 +85,20 @@ public class SQLTableCreationFactory {
                         "    ON UPDATE CASCADE);";
             case SOLD_BOOKS:
                 return "CREATE TABLE IF NOT EXISTS sold_books (" +
-                " id INT NOT NULL AUTO_INCREMENT," +
-                "  author varchar(500) NOT NULL," +
-                "  title varchar(500) NOT NULL," +
-                "  price DECIMAL(10,2) NOT NULL," +
-                "  stock_sold INT NOT NULL," +
-                "  PRIMARY KEY (id)," +
-                "  UNIQUE KEY id_UNIQUE (id), " +
-                ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+                        " id INT NOT NULL AUTO_INCREMENT," +
+                        "  author varchar(500) NOT NULL," +
+                        "  title varchar(500) NOT NULL," +
+                        "  price DECIMAL(10,2) NOT NULL," +
+                        "  stock_sold INT NOT NULL," +
+                        "  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                        "  user_id bigint DEFAULT NULL," +
+                        "  PRIMARY KEY (id)," +
+                        "  UNIQUE KEY id_UNIQUE (id), " +
+                        "  CONSTRAINT fk_user_id "+
+                        "  FOREIGN KEY (user_id)" +
+                        "  REFERENCES user(id)" +
+                        "  ON DELETE SET NULL" +
+                        ") ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
 
             default:

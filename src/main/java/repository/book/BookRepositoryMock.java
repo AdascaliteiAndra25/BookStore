@@ -1,6 +1,7 @@
 package repository.book;
 
 import model.Book;
+import model.Order;
 import repository.book.BookRepository;
 
 import java.util.ArrayList;
@@ -27,6 +28,17 @@ public class BookRepositoryMock implements BookRepository {
     }
 
     @Override
+    public List<Order> findAllOrders() {
+        return null;
+    }
+
+    @Override
+    public List<Order> findOrdersForLastMonth() {
+        return null;
+    }
+
+
+    @Override
     public Optional<Book> findById(Long id) {
         return books.parallelStream()
                 .filter(it -> it.getId().equals(id))
@@ -50,12 +62,14 @@ public class BookRepositoryMock implements BookRepository {
     }
 
     @Override
-    public Optional<Book> findByTitleAndAuthor(String title, String author) {
-        return Optional.empty();
+    public boolean sellBook(Book book, Long id) {
+        return false;
     }
 
+
+
     @Override
-    public boolean sellBook(Book book) {
+    public boolean update(Book book) {
         return false;
     }
 

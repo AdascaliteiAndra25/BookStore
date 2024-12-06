@@ -35,10 +35,9 @@ public class BookView {
     private Button deleteButton;
     private Button sellButton;
 
-    private TableView soldBooksTableView;
+    private TableView<BookDTO> soldBooksTableView;
     private final ObservableList<BookDTO> soldBooksObservableList;
 
-    //private Button backButton;
 
     public BookView(Stage primaryStage, List<BookDTO> books, List<BookDTO> soldBooks){
         primaryStage.setTitle("Library");
@@ -46,7 +45,7 @@ public class BookView {
         GridPane gridPane=new GridPane();
         initializeGridPane(gridPane);
 
-        Scene scene = new Scene(gridPane, 1000, 500);
+        Scene scene = new Scene(gridPane, 900, 500);
         primaryStage.setScene(scene);
 
         booksObservableList = FXCollections.observableArrayList(books);
@@ -124,28 +123,25 @@ public class BookView {
         gridPane.add(authorTextField,3,1);
 
         priceLabel = new Label("Price");
-        gridPane.add(priceLabel, 0, 2);
+        gridPane.add(priceLabel, 4, 1);
 
         priceTextField = new TextField();
-        gridPane.add(priceTextField, 1, 2);
+        gridPane.add(priceTextField, 5, 1);
 
         stockLabel = new Label("Stock");
-        gridPane.add(stockLabel, 2, 2);
+        gridPane.add(stockLabel, 6, 1);
 
         stockTextField = new TextField();
-        gridPane.add(stockTextField, 3, 2);
+        gridPane.add(stockTextField, 7, 1);
 
         saveButton=new Button("Save");
-        gridPane.add(saveButton, 1,3);
+        gridPane.add(saveButton, 2,3);
 
         deleteButton=new Button("Delete");
-        gridPane.add(deleteButton,2,3);
+        gridPane.add(deleteButton,4,3);
 
         sellButton = new Button("Sell");
-        gridPane.add(sellButton, 3, 3);
-
-       // backButton=new Button("Back");
-        //gridPane.add(backButton,0,4);
+        gridPane.add(sellButton, 6, 3);
 
         }
 
@@ -161,9 +157,6 @@ public class BookView {
         sellButton.setOnAction(sellButtonListener);
         }
 
-       // public void addBackButtonListener(EventHandler<ActionEvent> backButtonListener){
-        //backButton.setOnAction(backButtonListener);
-        // }
 
 
 
@@ -186,12 +179,12 @@ public class BookView {
 
         public double getPrice(){
             try{
-                //System.out.println(Integer.parseInt(priceTextField.getText()));
+
                 return Double.parseDouble(priceTextField.getText());
             }catch (NumberFormatException e){
                 return 0.0;
             }
-           // return Double.parseDouble(priceTextField.getText());
+
         }
 
         public int getStock(){
@@ -214,10 +207,10 @@ public class BookView {
         this.booksObservableList.remove(bookDTO);
         }
 
-        public TableView getBookTableView(){
+        public TableView<BookDTO> getBookTableView(){
             return bookTableView;
         }
-        public TableView getSoldBooksTableView(){ return soldBooksTableView; }
+        public TableView<BookDTO> getSoldBooksTableView(){ return soldBooksTableView; }
 
 
 }

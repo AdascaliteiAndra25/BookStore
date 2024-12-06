@@ -1,6 +1,8 @@
 import database.DatabaseConnectionFactory;
 import model.Book;
+import model.User;
 import model.builder.BookBuilder;
+import model.builder.UserBuilder;
 import repository.book.BookRepository;
 import repository.book.BookRepositoryCacheDecorator;
 import repository.book.BookRepositoryMySQL;
@@ -37,10 +39,29 @@ public class Main {
         bookRepository.removeAll();
         System.out.println(bookRepository.findAll());*/
 
-      DatabaseConnectionFactory.getConnectionWrapper(true).getConnection();
-
-//       BookRepository bookRepository= new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>());
+      Connection connection=DatabaseConnectionFactory.getConnectionWrapper(false).getConnection();
+//        RightsRolesRepositoryMySQL rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
 //
+//
+//        UserRepositoryMySQL userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
+//
+//
+//        User newUser = new UserBuilder()
+//                .setUsername("testuser")
+//                .setPassword("testpassword")
+//                .build();
+//
+//
+//        if (userRepository.save(newUser)) {
+//            System.out.println("User added successfully: " + newUser.getUsername());
+//        } else {
+//            System.out.println("Error adding user.");
+//
+//    }
+
+
+       BookRepository bookRepository= new BookRepositoryCacheDecorator(new BookRepositoryMySQL(connection), new Cache<>(), new Cache<>());
+
 //        BookService bookService=new BookServiceImpl(bookRepository);
 //
 //        RightsRolesRepository rightsRolesRepository=new RightsRolesRepositoryMySQL(connection);

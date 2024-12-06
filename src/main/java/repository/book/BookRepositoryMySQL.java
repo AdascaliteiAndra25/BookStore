@@ -1,10 +1,13 @@
 package repository.book;
 
 import model.Book;
+import model.Order;
 import model.builder.BookBuilder;
+import model.builder.OrderBuilder;
 import repository.book.BookRepository;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +58,58 @@ public class BookRepositoryMySQL implements BookRepository {
     }
 
     @Override
+    public List<Order> findAllOrders() {
+        String sql = "SELECT * FROM sold_books;";
+
+        List<Order> orders = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while(resultSet.next()){
+                orders.add(getOrderFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> findOrdersForLastMonth() {
+        String sql = "SELECT * FROM sold_books WHERE timestamp >= ?";
+
+        List<Order> orders = new ArrayList<>();
+        LocalDateTime lastMonth = LocalDateTime.now().minusMonths(1);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(lastMonth));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                Order order = new OrderBuilder()
+                        .setId(resultSet.getLong("id"))
+                        .setTitle(resultSet.getString("title"))
+                        .setAuthor(resultSet.getString("author"))
+                        .setPrice(resultSet.getDouble("price"))
+                        .setQuantity(resultSet.getInt("stock_sold"))
+                        .setTimestamp(resultSet.getTimestamp("timestamp").toLocalDateTime())
+                        .setUserId(resultSet.getLong("user_id"))
+                        .build();
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return orders;
+
+    }
+
+    @Override
     public Optional<Book> findById(Long id) {
         String sql = "SELECT * FROM book WHERE id=?;";
 
@@ -100,10 +155,6 @@ public class BookRepositoryMySQL implements BookRepository {
 
     }
 
-
-
-
-
     @Override
     public boolean delete(Book book) {
        // String newSql = "DELETE FROM book WHERE author=\'" + book.getAuthor() +"\' AND title=\'" + book.getTitle()+"\';";
@@ -135,36 +186,9 @@ public class BookRepositoryMySQL implements BookRepository {
         }
     }
 
-    @Override
-    public Optional<Book> findByTitleAndAuthor(String title, String author) {
-
-        String sql = "SELECT * FROM book WHERE title = ? AND author= ?;";
-        Optional<Book> book = Optional.empty();
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,title);
-            preparedStatement.setString(2, author);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                book = Optional.of(getBookFromResultSet(resultSet));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        if (book.isPresent()) {
-            System.out.println("Found book: " + book.get().getTitle() + ", stock: " + book.get().getStock());
-        } else {
-            System.out.println("Book not found with titlee: " + title + " and author: " + author);
-        }
-        return book;
-
-    }
 
     @Override
-    public boolean sellBook(Book book) {
+    public boolean sellBook(Book book, Long id) {
 
         System.out.println("Selling book: " + book.getTitle() + ", current stock: " + book.getStock());
 
@@ -173,9 +197,9 @@ public class BookRepositoryMySQL implements BookRepository {
             return false;
         }
 
-        String insertSellTableSql="INSERT INTO sold_books VALUES (null,?,?,?,?);";
-        String updateSql = "UPDATE book SET stock= stock - 1 WHERE id=? AND stock > 0";
-        String deleteBookSql = "DELETE FROM book WHERE id = ? AND stock = 0;";
+        String insertSellTableSql="INSERT INTO sold_books VALUES (null,?,?,?,?, CURRENT_TIMESTAMP, ?);";
+        String updateSql = "UPDATE book SET stock= stock - 1 WHERE title = ? AND author = ? AND stock > 0;";
+        String deleteBookSql = "DELETE FROM book WHERE title = ? AND author = ? AND stock = 0;";
 
         try{
             PreparedStatement preparedInsertStatement= connection.prepareStatement(insertSellTableSql);
@@ -183,15 +207,18 @@ public class BookRepositoryMySQL implements BookRepository {
             preparedInsertStatement.setString(2,book.getTitle());
             preparedInsertStatement.setDouble(3,book.getPrice());
             preparedInsertStatement.setInt(4,1);
+            preparedInsertStatement.setLong(5, id);
+
             int inserted=preparedInsertStatement.executeUpdate();
 
             PreparedStatement preparedUpdateStatement=connection.prepareStatement(updateSql);
-            preparedUpdateStatement.setLong(1,book.getId());
-
+            preparedUpdateStatement.setString(1,book.getTitle());
+            preparedUpdateStatement.setString(2, book.getAuthor());
             int updated=preparedUpdateStatement.executeUpdate();
 
             PreparedStatement preparedDeleteStatement = connection.prepareStatement(deleteBookSql);
-            preparedDeleteStatement.setLong(1, book.getId());
+            preparedDeleteStatement.setString(1,book.getTitle());
+            preparedDeleteStatement.setString(2, book.getAuthor());
             int deleted = preparedDeleteStatement.executeUpdate();
 
 
@@ -202,6 +229,34 @@ public class BookRepositoryMySQL implements BookRepository {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public boolean update(Book book) {
+        System.out.println("Before Update: ");
+
+        String updateSql = "UPDATE book SET stock= stock - 1 WHERE title = ? AND author = ? AND stock > 0;";
+        String deleteBookSql = "DELETE FROM book WHERE title = ? AND author = ? AND stock = 0;";
+
+        try{
+            PreparedStatement preparedUpdateStatement=connection.prepareStatement(updateSql);
+            preparedUpdateStatement.setString(1,book.getTitle());
+            preparedUpdateStatement.setString(2, book.getAuthor());
+            int updated=preparedUpdateStatement.executeUpdate();
+
+            PreparedStatement preparedDeleteStatement = connection.prepareStatement(deleteBookSql);
+            preparedDeleteStatement.setString(1,book.getTitle());
+            preparedDeleteStatement.setString(2, book.getAuthor());
+            int deleted = preparedDeleteStatement.executeUpdate();
+
+            return updated == 1 ;
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+
+
     }
 
     private Book getBookFromResultSet(ResultSet resultSet) throws SQLException {
@@ -222,6 +277,18 @@ public class BookRepositoryMySQL implements BookRepository {
                 .setAuthor(resultSet.getString("author"))
                 .setPrice(resultSet.getDouble("price"))
                 .setStock(resultSet.getInt("stock_sold"))
+                .build();
+    }
+
+    private Order getOrderFromResultSet(ResultSet resultSet) throws SQLException {
+        return new OrderBuilder()
+                .setId(resultSet.getLong("id"))
+                .setTitle(resultSet.getString("title"))
+                .setAuthor(resultSet.getString("author"))
+                .setPrice(resultSet.getDouble("price"))
+                .setQuantity(resultSet.getInt("stock_sold"))
+                .setTimestamp(resultSet.getTimestamp("timestamp").toLocalDateTime())
+                .setUserId(resultSet.getLong("user_id"))
                 .build();
     }
 

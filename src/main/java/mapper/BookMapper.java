@@ -19,7 +19,7 @@ public class BookMapper {
                 .setStock(book.getStock())
                 .build();
 
-        bookDTO.setId(book.getId());
+        //bookDTO.setId(book.getId());
 
         return bookDTO;
     }

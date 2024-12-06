@@ -17,6 +17,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     private final UserRepository userRepository;
     private final RightsRolesRepository rightsRolesRepository;
+    private User user;
 
     public AuthenticationServiceImpl(UserRepository userRepository, RightsRolesRepository rightsRolesRepository) {
         this.userRepository = userRepository;
@@ -24,7 +25,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     }
 
     @Override
-    public Notification<Boolean> register(String username, String password) {
+    public Notification<Boolean> register(String username, String password, String role) {
 
         Notification<Boolean> userRegisterNotification = new Notification<>();
 
@@ -35,12 +36,12 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         }
 
-        Role customerRole = rightsRolesRepository.findRoleByTitle(CUSTOMER);
+        Role atribRole = rightsRolesRepository.findRoleByTitle(role);
 
         User user = new UserBuilder()
                 .setUsername(username)
                 .setPassword(password)
-                .setRoles(Collections.singletonList(customerRole))
+                .setRoles(Collections.singletonList(atribRole))
                 .build();
 
         UserValidator userValidator = new UserValidator(user);
@@ -61,12 +62,28 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     @Override
     public Notification<User> login(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, hashPassword(password));
+       // return userRepository.findByUsernameAndPassword(username, hashPassword(password));
+        Notification<User> notification = userRepository.findByUsernameAndPassword(username, hashPassword(password));
+
+        if (notification.getResult() != null) {
+            this.user = notification.getResult();
+            //System.out.println("OK");
+        }
+        user.setId(userRepository.findIdByUsername(username).orElseThrow(() -> new IllegalArgumentException("User with username: " + username + " was not found.")));
+        return notification;
     }
 
     @Override
     public boolean logout(User user) {
         return false;
+    }
+
+    @Override
+    public Long getUserLoggedId() {
+        if(user != null){
+            return user.getId();
+        }
+        return null;
     }
 
     private String hashPassword(String password) {

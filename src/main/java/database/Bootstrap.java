@@ -34,16 +34,27 @@ public class Bootstrap {
             Statement statement = connection.createStatement();
 
             String[] dropStatements = {
+                    "TRUNCATE `sold_books`;",
+                    "DROP TABLE `sold_books`;",
+
                     "TRUNCATE `role_right`;",
                     "DROP TABLE `role_right`;",
-                    "TRUNCATE `right`;",
-                    "DROP TABLE `right`;",
+
                     "TRUNCATE `user_role`;",
                     "DROP TABLE `user_role`;",
+
                     "TRUNCATE `role`;",
-                    "DROP TABLE  `book`, `role`, `user`;",
-                    "TRUNCATE `sold_books`;",
-                    "DROP TABLE  `sold_books`;"
+                    "DROP TABLE `role`;",
+
+                    "TRUNCATE `right`;",
+                    "DROP TABLE `right`;",
+
+                    "TRUNCATE `book`;",
+                    "DROP TABLE `book`;",
+
+                    "TRUNCATE `user`;",
+                    "DROP TABLE `user`;"
+
             };
 
             Arrays.stream(dropStatements).forEach(dropStatement -> {

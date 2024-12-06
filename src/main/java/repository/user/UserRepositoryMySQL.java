@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static database.Constants.Tables.USER;
 import static java.util.Collections.singletonList;
@@ -30,14 +31,14 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        String fetchUserSql = "SELECT * FROM `" + USER +"`";
+        String fetchUserSql = "SELECT * FROM `" + USER + "`";
 
         List<User> users = new ArrayList<>();
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(fetchUserSql);
 
-            while(resultSet.next()){
+            while (resultSet.next()) {
                 User user = new UserBuilder()
                         .setUsername(resultSet.getString("username"))
                         .setPassword(resultSet.getString("password"))
@@ -62,17 +63,17 @@ public class UserRepositoryMySQL implements UserRepository {
     public Notification<User> findByUsernameAndPassword(String username, String password) {
 
         Notification<User> findByUsernameAndPasswordNotification = new Notification<>();
-         try {
+        try {
 
 
             String fetchUserSql =
                     "Select * from `" + USER + "` where `username` = ? and `password` = ?";
-            PreparedStatement preparedStatement=connection.prepareStatement(fetchUserSql);
-            preparedStatement.setString(1,username);
-            preparedStatement.setString(2,password);
+            PreparedStatement preparedStatement = connection.prepareStatement(fetchUserSql);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
 
             ResultSet userResultSet = preparedStatement.executeQuery();
-            if(userResultSet.next()){
+            if (userResultSet.next()) {
                 User user = new UserBuilder()
                         .setUsername(userResultSet.getString("username"))
                         .setPassword(userResultSet.getString("password"))
@@ -80,18 +81,18 @@ public class UserRepositoryMySQL implements UserRepository {
                         .build();
                 findByUsernameAndPasswordNotification.setResult(user);
 
-            }else{
+            } else {
                 findByUsernameAndPasswordNotification.addError("Invalid username or password!");
-                return  findByUsernameAndPasswordNotification;
+                return findByUsernameAndPasswordNotification;
             }
 
-            } catch (SQLException e) {
-             System.out.println(e.toString());
-             findByUsernameAndPasswordNotification.addError("Something wrong with the Database!");
-            }
-         return findByUsernameAndPasswordNotification;
-
+        } catch (SQLException e) {
+            System.out.println(e.toString());
+            findByUsernameAndPasswordNotification.addError("Something wrong with the Database!");
         }
+        return findByUsernameAndPasswordNotification;
+
+    }
 
     @Override
     public boolean save(User user) {
@@ -118,6 +119,23 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
+    public boolean delete(User user) {
+        String newSql = "DELETE FROM user WHERE username=?;";
+
+        try{
+            PreparedStatement preparedStatement= connection.prepareStatement(newSql);
+            preparedStatement.setString(1, user.getUsername());
+
+            int deleted=preparedStatement.executeUpdate();
+            return (deleted != 1) ? false:true;
+
+        } catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public void removeAll() {
         try {
             Statement statement = connection.createStatement();
@@ -132,9 +150,9 @@ public class UserRepositoryMySQL implements UserRepository {
     public boolean existsByUsername(String email) {
         try {
             String fetchUserSql =
-                    "Select * from `" + USER + "` where `username`= ?" ;
-            PreparedStatement preparedStatement=connection.prepareStatement(fetchUserSql);
-            preparedStatement.setString(1,email);
+                    "Select * from `" + USER + "` where `username`= ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(fetchUserSql);
+            preparedStatement.setString(1, email);
             ResultSet userResultSet = preparedStatement.executeQuery();
             return userResultSet.next();
 
@@ -142,6 +160,24 @@ public class UserRepositoryMySQL implements UserRepository {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public Optional<Long> findIdByUsername(String username) {
+        String sql = " SELECT id FROM user WHERE username = ?;";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return Optional.of(resultSet.getLong("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+
     }
 
 }

@@ -3,11 +3,12 @@ package controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
-import launcher.CustomerComponentFactory;
+
 import mapper.BookMapper;
 import model.Book;
 import model.builder.BookBuilder;
 import service.book.BookService;
+import service.user.AuthenticationService;
 import view.BookView;
 import view.LoginView;
 import view.model.BookDTO;
@@ -16,15 +17,16 @@ import view.model.builder.BookDTOBuilder;
 public class BookController {
     private final BookView bookView;
     private final BookService bookService;
+    private final AuthenticationService authenticationService;
 
-    public BookController(BookView bookView, BookService bookService){
+    public BookController(BookView bookView, BookService bookService, AuthenticationService authenticationService){
         this.bookView=bookView;
         this.bookService=bookService;
+        this.authenticationService=authenticationService;
 
         this.bookView.addSaveButtonListener(new SaveButtonListener());
         this.bookView.addDeleteButtonListener(new DeleteButtonListener());
         this.bookView.addSellButtonListener(new SellButtonListener());
-        //this.bookView.addBackButtonListener(new BackButtonListener());
     }
 
     private class SaveButtonListener implements EventHandler<ActionEvent>{
@@ -91,33 +93,6 @@ public class BookController {
         }
     }
 
-//    private class SellButtonListener implements EventHandler<ActionEvent>{
-//
-//        @Override
-//        public void handle(ActionEvent actionEvent) {
-//            BookDTO bookDTO = (BookDTO) bookView.getBookTableView().getSelectionModel().getSelectedItem();
-//
-//            if (bookDTO != null){
-//
-//                boolean isSold = bookService.sellBook(BookMapper.convertBookDTOToBook(bookDTO).getId());
-//
-//                if(isSold) {
-//                    bookDTO.setStock(bookDTO.getStock()-1);
-//                    bookView.getBookTableView().refresh();
-//                    bookView.addDiasplayAlertMessage("Success", "Book Sold", "The book was successfully sold!");
-//                    bookView.addSoldBookToObservableList(bookDTO);
-//
-//                }else{
-//                    bookView.addDiasplayAlertMessage("Error", "Cannot Sell Book", "The book could not be sold. Ensure it has stock.");
-//
-//                }
-//            }else {
-//                bookView.addDiasplayAlertMessage("Error", "No Book Selected", "Please select a book to sell.");
-//
-//            }
-//        }
-//    }
-
     private class SellButtonListener implements EventHandler<ActionEvent> {
 
         @Override
@@ -128,7 +103,12 @@ public class BookController {
                 System.out.println("IDdto:");
                 System.out.println(bookDTO.getId());
 
-                boolean isSold = bookService.sellBook(bookDTO.getId());
+                Long userId = authenticationService.getUserLoggedId();
+                System.out.println(userId);
+
+                Book bookToSell =BookMapper.convertBookDTOToBook(bookDTO);
+
+                boolean isSold = bookService.sellBook(bookToSell, userId);
 
                 if (isSold) {
                     bookDTO.setStock(bookDTO.getStock() - 1);
@@ -141,7 +121,7 @@ public class BookController {
                         bookView.getBookTableView().refresh();
                     }
 
-                    bookView.getBookTableView().refresh();
+
                     BookDTO soldBook = new BookDTOBuilder()
                             .setId(bookDTO.getId())
                             .setTitle(bookDTO.getTitle())
@@ -161,19 +141,5 @@ public class BookController {
         }
     }
 
-
-
-//    private class BackButtonListener implements EventHandler<ActionEvent>{
-//
-//        @Override
-//        public void handle(ActionEvent actionEvent) {
-//            Stage current =(Stage) bookView.getBookTableView().getScene().getWindow();
-//            current.close();
-//            Stage loginView =new Stage();
-//            new LoginView(loginView);
-//            loginView.show();
-//
-//        }
-//    }
 
 }

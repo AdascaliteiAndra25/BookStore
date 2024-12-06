@@ -1,6 +1,7 @@
 package service.book;
 
 import model.Book;
+import model.Order;
 import repository.book.BookRepository;
 import service.book.BookService;
 
@@ -13,9 +14,10 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
-    public BookServiceImpl(BookRepository bookRepository){
-        this.bookRepository=bookRepository;
+    public BookServiceImpl(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
+
     @Override
     public List<Book> findAll() {
         return bookRepository.findAll();
@@ -24,6 +26,16 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> findSoldBooks() {
         return bookRepository.findSoldBooks();
+    }
+
+    @Override
+    public List<Order> findAllOrders() {
+        return bookRepository.findAllOrders();
+    }
+
+    @Override
+    public List<Order> findOrdersForLastMonth() {
+        return bookRepository.findOrdersForLastMonth();
     }
 
     @Override
@@ -44,66 +56,31 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public int getAgeOgBook(Long id) {
-        Book book=this.findById(id);
-        LocalDate now =LocalDate.now();
+        Book book = this.findById(id);
+        LocalDate now = LocalDate.now();
 
         return (int) ChronoUnit.YEARS.between(book.getPublishedDate(), now);
     }
 
-    @Override
-    public boolean bookExists(String title, String author) {
-        return bookRepository.findByTitleAndAuthor(title,author).isPresent();
-    }
 
-    @Override
-    public boolean sellBook(Long id) {
-
-        Book book = bookRepository.findById(id).orElse(null);
-
-
-        if (book != null) {
-            System.out.println("Found book: " + book.getTitle() + " with stock: " + book.getStock());
-
-
-            if (book.getStock() > 0) {
-
-                return bookRepository.sellBook(book);
-            } else {
-
-                System.out.println("Book is out of stock.");
-                return false;
-            }
-        } else {
-
-            System.out.println("Book not found with id: ");
+    public boolean sellBook(Book book, Long id) {
+        if (book == null || book.getStock() == 0) {
+            System.out.println("Cannot sell book. Book out of stock!");
             return false;
         }
+        return bookRepository.sellBook(book, id);
     }
 
-
-//    public boolean sellBook(String title, String author) {
-//        Book book = bookRepository.findByTitleAndAuthor(title, author).orElse(null);
-//
-//        if(book != null && book.getStock()>0){
-//            return bookRepository.sellBook(book);
-//        }else {
-//            System.out.println("Book not found or out of stock.");
-//            return false;
-//        }
-//        //return false;
-//    }
-
-//    @Override
-//    public boolean sellBook(Long id) {
-//        Book book = bookRepository.findById(id).orElse(null);
-//        if(book != null && book.getStock()>0){
-//            return bookRepository.sellBook(book);
-//        }else {
-//            System.out.println("Book not found or out of stock.");
-//            return false;
-//        }
-//        //return false;
-//    }
-
+    @Override
+    public boolean buyBook(Book book) {
+        System.out.println("Buna ziua");
+        if (book == null || book.getStock() == 0) {
+            System.out.println("Cannot sell book. Book out of stock!");
+            return false;
+        }
+        System.out.println("Buna seara");
+        return bookRepository.update(book);
+    }
 
 }
+
