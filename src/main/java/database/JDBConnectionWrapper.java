@@ -6,7 +6,7 @@ public class JDBConnectionWrapper {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String DB_URL= "jdbc:mysql://localhost/";
     private static final String USER = "root";
-    private static final String PASSWORD = "Spersareusescinviata25";
+    private static final String PASSWORD = "parola";
     private static final int TIMEOUT = 5;
     private Connection connection;
 
