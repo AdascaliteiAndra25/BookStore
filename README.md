@@ -1,4 +1,3 @@
-"# LibraryProject" 
 This project implements a bookstore management system using the Java API and a MySQL database. The system allows two types of users: Customer and Admin. Each user type has different permissions for performing CRUD (Create, Read, Update, Delete) operations on the books in the store.
 
 Customer: Can view the available books in the store and purchase one book at a time.
